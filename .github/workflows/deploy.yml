@@ -1,0 +1,105 @@
+# Build → test → deploy pipeline for Frank + the Cloudscape console.
+# Implements ADR-005 (OIDC to Azure) against the hosting shape in ADR-004.
+#
+# Fork setup (each student, once):
+#   Secrets  : AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID,
+#              AZURE_STATIC_WEB_APPS_API_TOKEN
+#   Variables: AZURE_RESOURCE_GROUP, CONTAINER_APP_NAME, SWA_NAME, FRANK_URL
+#
+# PRs build & test only. Pushes to main also deploy.
+
+name: build-and-deploy
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # OIDC token for azure/login (ADR-005)
+  contents: read
+
+jobs:
+  build-server:
+    name: Build & test Frank (server/)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - name: Install, test, build
+        working-directory: server
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+  build-ui:
+    name: Build & test console (ui/)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+      - name: Install, test, build
+        working-directory: ui
+        env:
+          VITE_FRANK_URL: ${{ vars.FRANK_URL }}
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ui-dist
+          path: ui/dist
+
+  deploy-server:
+    name: Deploy Frank → Azure Container Apps
+    if: github.event_name != 'pull_request'
+    needs: build-server
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Azure login (OIDC — no stored password, per ADR-005)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Build & deploy container app from source
+        run: |
+          az containerapp up \
+            --name "${{ vars.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+            --source ./server \
+            --ingress external \
+            --target-port 3000
+
+  deploy-ui:
+    name: Deploy console → Azure Static Web Apps
+    if: github.event_name != 'pull_request'
+    needs: build-ui
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ui-dist
+          path: dist
+      - name: Deploy static site
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: dist
+          skip_app_build: true
