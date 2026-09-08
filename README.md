@@ -32,9 +32,15 @@ prompting.
 
 ### The one thing that must not fail
 
-**Every attendee connects to and calls an MCP server before lunch.** Everything
-else is ambition; that is the floor. It needs Node and five minutes — no cloud,
-no credentials, no pipeline — which is exactly why it is the floor.
+**Every attendee connects to and calls an MCP server before lunch** — in the
+10:30 connector round, because a connector *is* an MCP server someone else
+wrote. Everything else is ambition; that is the floor. It needs no cloud, no
+credentials and no pipeline, which is exactly why it is the floor.
+
+There is no warm-up server and no sanitised practice exercise. The class builds
+the real thing, and when something is missing — a variable, a credential, a
+dependency — an agent works out what. That discovery is the skill, not a detour
+around it.
 
 ### What this is not
 
