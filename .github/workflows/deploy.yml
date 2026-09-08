@@ -124,10 +124,10 @@ jobs:
         run: |
           fail=0
           if [ -z "$CREDS" ]; then
-            echo "::error::Secret AZURE_CREDENTIALS is missing or empty. Paste the seat-card JSON."
+            echo "::error::Secret AZURE_CREDENTIALS is missing or empty. Run the one command your instructor put on screen: gh secret set AZURE_CREDENTIALS --body \"\$(curl -s <url>)\""
             fail=1
           elif ! echo "$CREDS" | python3 -c 'import json,sys; d=json.load(sys.stdin); [d[k] for k in ("clientId","clientSecret","subscriptionId","tenantId")]' 2>/dev/null; then
-            echo "::error::AZURE_CREDENTIALS is not valid JSON with clientId/clientSecret/subscriptionId/tenantId. Re-copy the whole block including the braces."
+            echo "::error::AZURE_CREDENTIALS is not valid JSON with clientId/clientSecret/subscriptionId/tenantId. The curl probably failed or the credential expired — re-run the command on screen, and ask your instructor if it still fails."
             fail=1
           fi
           # Nothing else to check: the resource group, registry and environment are
