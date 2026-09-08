@@ -34,7 +34,7 @@ and is deleted the same day.
 one client secret, **Contributor on one resource group** in a disposable
 subscription, expiring in two days.
 
-**Published to an open URL.** `class-azure/publish-credential.sh` creates it and
+**Published to an open URL.** `instructor/publish-credential.sh` creates it and
 uploads it to a public blob. The container name is a random token — the blob is
 genuinely public, but not discoverable by crawling.
 

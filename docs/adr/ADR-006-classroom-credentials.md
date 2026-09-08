@@ -68,7 +68,9 @@ creating them in class costs ~75s each of dead time.
 **Credentials.** The student adds **one** GitHub secret, `AZURE_CREDENTIALS`
 (SDK-auth JSON), plus repository variables `AZURE_RESOURCE_GROUP`,
 `CONTAINER_APP_NAME`, `ACR_NAME`, and `CONTAINERAPPS_ENV`. `scripts/setup-seat.sh`
-sets all of them from the seat card in one command.
+sets all of them from the seat card in one command. **(That script was removed by
+ADR-010, which made per-student variables unnecessary. The reference is kept as
+part of the record of what this ADR decided.)**
 
 **One deploy target.** Azure Static Web Apps is dropped. Frank's Express app
 serves the built Cloudscape console from the same container: console at `/`,
