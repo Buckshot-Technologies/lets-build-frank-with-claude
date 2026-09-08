@@ -97,10 +97,8 @@ and have the agents implement them.
 |---|---|
 | **GitHub account** | You'll fork this repo and run its Actions pipeline |
 | **GitHub Copilot subscription** | Powers the Copilot CLI, our second agent |
-| **Azure subscription** | Frank's home. A personal/dev subscription is fine |
-| **A seat card** | Handed to you in class. One credential, scoped to one resource group, expiring in two days. You do not need your own Azure subscription |
+| **Nothing from Azure** | No subscription, no credentials, no API keys. Your instructor puts one short-lived credential on screen and you paste it with a single command ([ADR-010](docs/adr/ADR-010-one-open-credential.md)) |
 | **Claude account** | Sign-in for Claude Desktop, Claude Code, and mobile |
-| **Anthropic API key** | We generate this together in the afternoon — don't worry about it yet |
 
 ### Installed on your laptop
 
@@ -198,7 +196,7 @@ container app is named after your GitHub account, so nobody collides.
 │   └── workflows/
 │       └── deploy.yml         ← build → test → deploy ONE container (ADR-006)
 ├── Dockerfile                 ← one image: Frank + the console (ADR-006)
-├── scripts/setup-seat.sh      ← configures your fork from the seat card
+├── instructor/                ← what your instructor runs; you don't need it
 ├── server/                    ← Frank's MCP server   (built in class, per ADR-001/002)
 │                                 listens on PORT, default 3000 — the pipeline
 │                                 deploys with --target-port 3000
