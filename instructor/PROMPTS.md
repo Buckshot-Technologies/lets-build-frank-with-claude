@@ -22,7 +22,23 @@ one line because the ADR is three pages. The specification does the work.
 
 ---
 
-## STAGE 1 — Fork, and see what an agent can infer
+## Stage order — this is the point, not a detail
+
+| Stage | Clock | What |
+|---|---|---|
+| 1–2 | 1:00 | Fork, `/init`, read it, correct it |
+| 3 | 1:45 | Build Frank from ADR-001 + ADR-002 |
+| 4 | 2:40 | Draft ADR-009, Copilot attacks it |
+| 5 | 3:10 | Build the tool **from the ADR they just wrote** |
+| 6 | 3:40 | Push once, deploy once |
+
+Stage 4 precedes stage 5 deliberately. An earlier agenda had them the other way
+round — the tool at 1:50, the ADR at 2:40 — which taught implementation before
+decision on the one slide the room stares at all day.
+
+---
+
+## STAGE 1 — Fork, and see what an agent can infer (1:00)
 
 ```
 /init
@@ -40,7 +56,7 @@ it apart.
 
 ---
 
-## STAGE 2 — `/init`, and why you must read it (Section 10)
+## STAGE 2 — `/init`, and why you must read it (1:00)
 
 ```
 /init
@@ -72,7 +88,7 @@ your fork, and commit. It is team config now.
 
 ---
 
-## STAGE 3 — Architecture becomes executable (Section 14)
+## STAGE 3 — Architecture becomes executable (1:45)
 
 ```
 Implement ADR-001 and ADR-002 in server/. Read both ADRs first; they are
@@ -110,7 +126,48 @@ spec**, not that the spec was right. Stage 4 exists because of that gap.
 
 ---
 
-## STAGE 3b — Write the Azure tool (the 1:50 block)
+## STAGE 4 — Claude drafts, Copilot attacks (2:40)
+
+```
+# in the Claude pane
+Draft ADR-009: let Frank read what is running in his own Azure resource
+group. Follow docs/adr/template.md. One page.
+```
+
+```
+# in the Copilot pane
+Attack this ADR draft. Edge cases, security holes, simpler alternatives.
+Be blunt. Under 300 words.
+```
+
+**What you should see** — a real disagreement. The recorded example is from an
+ADR-008 draft in rehearsal: Copilot found that a proposed static bearer token,
+shipped in a static site's JavaScript bundle, is **not an authentication
+boundary at all**, and that CORS is not one either since non-browser callers
+ignore it. The first fix was wrong; the attack caught it. That draft became
+[ADR-007](../docs/adr/ADR-007-mcp-endpoint-authentication.md), kept at status
+**Rejected** so students can see what a rejected decision looks like.
+
+On an ADR-009 draft expect a different attack — scope, whether the tool should
+take a resource group parameter, what happens when the credential is absent.
+Do not script the disagreement; let it happen.
+
+**The point:** different weights, different blind spots. Their confident
+mistakes rarely overlap.
+
+**Now change it:** take one Copilot criticism you disagree with and defend your
+draft. You are the referee, not a spectator.
+
+---
+
+**This block comes before the tool, deliberately.** An earlier agenda built the
+Azure tool at 1:50 and drafted the ADR at 2:40 — implementation before decision,
+on the one slide the room stares at all day. Architecture precedes
+implementation, including on the clock.
+
+---
+
+## STAGE 5 — Write the Azure tool from the ADR you just wrote (3:10)
 
 **Verified: this produced `list_resources` in the pilot run**, deployed to a real
 Container App, answering from live Azure state.
@@ -156,34 +213,7 @@ cannot work.
 
 ---
 
-## STAGE 4 — Claude drafts, Copilot attacks (Section 12)
-
-```
-# in the Claude pane
-Draft ADR-008: connect Frank to the GitHub pipeline so he can report on
-builds. Follow docs/adr/template.md. One page.
-```
-
-```
-# in the Copilot pane
-Attack this ADR draft. Edge cases, security holes, simpler alternatives.
-Be blunt. Under 300 words.
-```
-
-**What you should see** — a real disagreement. In our run Copilot found that a
-proposed static bearer token, shipped in a static site's JavaScript bundle, is
-**not an authentication boundary at all**, and that CORS is not one either since
-non-browser callers ignore it. The first fix was wrong; the attack caught it.
-
-**The point:** different weights, different blind spots. Their confident
-mistakes rarely overlap.
-
-**Now change it:** take one Copilot criticism you disagree with and defend your
-draft. You are the referee, not a spectator.
-
----
-
-## STAGE 5 — Push once, deploy once (Section 15)
+## STAGE 6 — Push once, deploy once (3:40)
 
 ```bash
 gh secret set AZURE_CREDENTIALS --body "$(curl -s <the URL on screen>)"

@@ -1,6 +1,6 @@
 # Reference answers — spoilers
 
-**Do not open this before the 1:50 block, and do not put it on screen.**
+**Do not open this before the 3:10 block, and do not put it on screen.**
 
 Students derive `list_resources` from [ADR-002](../../docs/adr/ADR-002-mcp-tool-conventions.md)
 and the ADR-009 they write themselves. Deriving it *is* the exercise — the

@@ -32,9 +32,15 @@ prompting.
 
 ### The one thing that must not fail
 
-**Every attendee connects to and calls an MCP server before lunch.** Everything
-else is ambition; that is the floor. It needs Node and five minutes — no cloud,
-no credentials, no pipeline — which is exactly why it is the floor.
+**Every attendee connects to and calls an MCP server before lunch** — in the
+10:30 connector round, because a connector *is* an MCP server someone else
+wrote. Everything else is ambition; that is the floor. It needs no cloud, no
+credentials and no pipeline, which is exactly why it is the floor.
+
+There is no warm-up server and no sanitised practice exercise. The class builds
+the real thing, and when something is missing — a variable, a credential, a
+dependency — an agent works out what. That discovery is the skill, not a detour
+around it.
 
 ### What this is not
 
@@ -85,9 +91,10 @@ Frank is:
   report on his own world (*"Frank, what's running in your resource group?"*).
 
 The core architecture decisions are already made and recorded in
-[`docs/adr/`](docs/adr/). During the class you will write two more ADRs —
-connecting Frank to the GitHub pipeline, and teaching him to read his own Azure
-environment — and have the agents implement them.
+[`docs/adr/`](docs/adr/). During the class you will write one more ADR —
+ADR-009, which teaches Frank to read his own Azure environment — and you will
+take it the whole way: draft it, have Copilot attack it, implement it from the
+draft, and deploy it. One decision end to end beats two half-written.
 
 ## What you need before class
 
