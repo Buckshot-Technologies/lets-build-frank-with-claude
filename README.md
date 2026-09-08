@@ -142,12 +142,29 @@ broken Node install is the usual cause and the error message will not say so.
 gh repo fork Buckshot-Technologies/lets-build-frank-with-claude --clone
 cd lets-build-frank-with-claude
 
-# 2 — start Claude Code inside the repo
+# 2 — ENABLE ACTIONS ON YOUR FORK. Do this now, not at 3pm. See the note below.
+#     github.com/<your-username>/lets-build-frank-with-claude/actions
+
+# 3 — start Claude Code inside the repo
 claude
 
-# 3 — scaffold CLAUDE.md + .claude/ for THIS project
+# 4 — scaffold CLAUDE.md + .claude/ for THIS project
 > /init
 ```
+
+> ### ⚠️ Enable Actions on your fork before you do anything else
+>
+> **GitHub disables Actions on forks by default.** Open the **Actions** tab on
+> *your* fork and click **"I understand my workflows, go ahead and enable
+> them."**
+>
+> Skip it and your `git push` this afternoon will do **nothing at all** — no
+> build, no failure, no red X, no log. There is nothing to debug because nothing
+> ran. It is the single most confusing way this day can go wrong, and it takes
+> five seconds to prevent.
+>
+> **You do not need a paid GitHub plan.** Actions is free and unmetered on public
+> repositories, and your fork of this public repo is public. Leave it that way.
 
 Then set the one secret, from the URL your instructor puts on screen
 (see [ADR-010](docs/adr/ADR-010-one-open-credential.md)):
