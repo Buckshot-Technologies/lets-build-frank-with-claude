@@ -86,9 +86,10 @@ Frank is:
   report on his own world (*"Frank, what's running in your resource group?"*).
 
 The core architecture decisions are already made and recorded in
-[`docs/adr/`](docs/adr/). During the class you will write two more ADRs —
-connecting Frank to the GitHub pipeline, and teaching him to read his own Azure
-environment — and have the agents implement them.
+[`docs/adr/`](docs/adr/). During the class you will write one more ADR —
+ADR-009, which teaches Frank to read his own Azure environment — and you will
+take it the whole way: draft it, have Copilot attack it, implement it from the
+draft, and deploy it. One decision end to end beats two half-written.
 
 ## What you need before class
 
@@ -98,7 +99,7 @@ environment — and have the agents implement them.
 |---|---|
 | **GitHub account** | You'll fork this repo and run its Actions pipeline |
 | **GitHub Copilot subscription** | Powers the Copilot CLI, our second agent |
-| **Nothing from Azure** | No subscription, no credentials, no API keys. Your instructor puts one short-lived credential on screen and you paste it with a single command ([ADR-010](docs/adr/ADR-010-one-open-credential.md)) |
+| **Nothing from Azure** | No subscription, no credentials, no API keys. Your instructor puts one **command** on screen; you run it, and it pulls a short-lived credential straight into your fork's secrets ([ADR-010](docs/adr/ADR-010-one-open-credential.md)) |
 | **Claude account** | Sign-in for Claude Desktop, Claude Code, and mobile |
 
 ### Installed on your laptop
@@ -131,7 +132,7 @@ gh auth status
 ```
 
 No `az login`, and no Azure CLI. You never talk to Azure directly — the pipeline
-does it for you, with a credential your instructor puts on screen.
+does it for you, with a credential your fork fetches for itself.
 
 If `copilot --version` says "not found", check `node --version` **first** — a
 broken Node install is the usual cause and the error message will not say so.
@@ -167,8 +168,8 @@ claude
 > **You do not need a paid GitHub plan.** Actions is free and unmetered on public
 > repositories, and your fork of this public repo is public. Leave it that way.
 
-Then set the one secret, from the URL your instructor puts on screen
-(see [ADR-010](docs/adr/ADR-010-one-open-credential.md)):
+Then set the one secret. Your instructor puts this command on screen — the URL
+is the part that changes (see [ADR-010](docs/adr/ADR-010-one-open-credential.md)):
 
 ```bash
 gh secret set AZURE_CREDENTIALS --body "$(curl -s <the URL on screen>)"

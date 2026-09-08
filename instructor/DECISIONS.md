@@ -76,8 +76,14 @@ that the room infers a block the slide does not show.
 ## D-08 — Students bring nothing from Azure
 
 No subscription, no credentials, no API key, **no `az login`, no Azure CLI**.
-One deliberately public credential goes on screen; they paste it with one
-command. See [ADR-010](../docs/adr/ADR-010-one-open-credential.md).
+The credential is published to a public URL; the **command** to fetch it goes on
+screen. See [ADR-010](../docs/adr/ADR-010-one-open-credential.md).
+
+**The key is never displayed.** `curl` pipes it straight into `gh secret set`, so
+it never reaches the projector, a clipboard, or shell history — only the URL is
+visible, and that is public by design. Saying "the instructor puts a credential
+on screen" describes a different, worse mechanism, and it had leaked into five
+files before anyone caught it. Say *"one command on screen"*.
 
 **Killed:** seat cards, `provision-class.sh`, `setup-seat.sh`, `handout.sh`, the
 prerequisites rows for an Azure subscription and an Anthropic API key, `az login`

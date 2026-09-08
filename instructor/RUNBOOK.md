@@ -49,7 +49,10 @@ cost what 3 do.
 
 One app registration, one client secret, Contributor on one resource group,
 two-day expiry — published to a public blob with a random container name. It
-prints the URL you put on screen.
+prints the one-line command you put on screen. Note what that line does **not**
+contain: the credential itself. `curl` pipes it straight into `gh secret set`, so
+the key never appears on the projector, in anyone's clipboard, or in shell
+history. Only the URL is visible, and it is public by design.
 
 Pre-creating the shared registry and Container Apps environment matters: the
 environment takes **~75–90s** and it is the long pole. Created once for the
@@ -76,7 +79,8 @@ broken credential simultaneously is the worst hour of your life.
 - The **pre-recorded** vague-description clip queued (see *Demos that can fail*).
 - A deliberately broken state in your own fork, in case every student deploys
   clean first time — the diagnosis is the lesson, not the green tick.
-- The credential URL on screen, and **not** in a shared doc that outlives the day.
+- `./instructor/publish-credential.sh show` on screen — the command, not the key.
+  Do not put it in a shared doc that outlives the day.
 
 ---
 
@@ -128,7 +132,7 @@ the secret removed the blocker. Also deleted: `provision-class.sh`,
 | `copilot: not found` | Broken Node, not Copilot | "Check `node --version` first. The error won't tell you." |
 | Deploy fails with an opaque `az` error | A missing GitHub secret expands to an **empty string** | "The preflight step names it. Read the red line." |
 | **Job never starts; no logs at all** | **Org billing lock.** The message is in the check *annotation*, not the logs | "That's an account problem, not your code." Cost real time in rehearsal — look at the annotation first |
-| `AADSTS700213` | Someone reused old OIDC instructions | "That's ADR-005, superseded by ADR-006 and then ADR-010. Use the credential on screen." |
+| `AADSTS700213` | Someone reused old OIDC instructions | "That's ADR-005, superseded by ADR-006 and then ADR-010. Run the command on screen." |
 | An agent dies seconds after starting | It was on a first-run trust prompt; herdr reported it ready | "Approve the trust prompt, then re-send." |
 | Deploy slow, no output | ACR build, ~70s | "That's the image building in the cloud. It dominates; nothing is stuck." |
 | Two students deploy at once | **Untested at class scale.** They share one resource group; app names derive from the GitHub owner, so collision needs deliberate effort | Have them stagger if you see trouble, and tell them why |
