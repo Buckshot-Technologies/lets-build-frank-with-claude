@@ -91,10 +91,9 @@ Frank is:
   report on his own world (*"Frank, what's running in your resource group?"*).
 
 The core architecture decisions are already made and recorded in
-[`docs/adr/`](docs/adr/). During the class you will write one more ADR —
-ADR-009, which teaches Frank to read his own Azure environment — and you will
-take it the whole way: draft it, have Copilot attack it, implement it from the
-draft, and deploy it. One decision end to end beats two half-written.
+[`docs/adr/`](docs/adr/). During the class you will write two more ADRs —
+connecting Frank to the GitHub pipeline, and teaching him to read his own Azure
+environment — and have the agents implement them.
 
 ## What you need before class
 
