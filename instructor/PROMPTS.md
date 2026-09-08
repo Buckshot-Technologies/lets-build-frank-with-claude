@@ -222,6 +222,10 @@ git push origin main
 
 One secret. **No repository variables** — the resource group, registry and
 environment names are committed in `deploy.yml`, because none of them is secret.
+
+Worth saying out loud: the credential never appears on screen. `curl` pipes it
+into `gh secret set`, so it skips the projector, the clipboard and shell
+history. Only the URL is visible, and it is public on purpose.
 That single observation is what deleted the seat cards ([ADR-010](../docs/adr/ADR-010-one-open-credential.md)).
 
 **What you should see** — one pipeline run, then in the job summary:

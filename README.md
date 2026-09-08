@@ -30,17 +30,12 @@ prompting.
 - **Pushed your fork through a real pipeline** to a reachable Frank, and asked
   him about his own environment
 
-### The one thing that must not fail
+### No warm-up, no sandbox
 
-**Every attendee connects to and calls an MCP server before lunch** — in the
-10:30 connector round, because a connector *is* an MCP server someone else
-wrote. Everything else is ambition; that is the floor. It needs no cloud, no
-credentials and no pipeline, which is exactly why it is the floor.
-
-There is no warm-up server and no sanitised practice exercise. The class builds
-the real thing, and when something is missing — a variable, a credential, a
-dependency — an agent works out what. That discovery is the skill, not a detour
-around it.
+There is no practice server and no sanitised exercise. You install real
+connectors in the morning and build the real thing in the afternoon — and when
+something is missing (a variable, a credential, a dependency) an agent works out
+what. That discovery is the skill, not a detour around it.
 
 ### What this is not
 
@@ -91,9 +86,10 @@ Frank is:
   report on his own world (*"Frank, what's running in your resource group?"*).
 
 The core architecture decisions are already made and recorded in
-[`docs/adr/`](docs/adr/). During the class you will write two more ADRs —
-connecting Frank to the GitHub pipeline, and teaching him to read his own Azure
-environment — and have the agents implement them.
+[`docs/adr/`](docs/adr/). During the class you will write one more ADR —
+ADR-009, which teaches Frank to read his own Azure environment — and you will
+take it the whole way: draft it, have Copilot attack it, implement it from the
+draft, and deploy it. One decision end to end beats two half-written.
 
 ## What you need before class
 
@@ -103,7 +99,7 @@ environment — and have the agents implement them.
 |---|---|
 | **GitHub account** | You'll fork this repo and run its Actions pipeline |
 | **GitHub Copilot subscription** | Powers the Copilot CLI, our second agent |
-| **Nothing from Azure** | No subscription, no credentials, no API keys. Your instructor puts one short-lived credential on screen and you paste it with a single command ([ADR-010](docs/adr/ADR-010-one-open-credential.md)) |
+| **Nothing from Azure** | No subscription, no credentials, no API keys. Your instructor puts one **command** on screen; you run it, and it pulls a short-lived credential straight into your fork's secrets ([ADR-010](docs/adr/ADR-010-one-open-credential.md)) |
 | **Claude account** | Sign-in for Claude Desktop, Claude Code, and mobile |
 
 ### Installed on your laptop
@@ -136,7 +132,7 @@ gh auth status
 ```
 
 No `az login`, and no Azure CLI. You never talk to Azure directly — the pipeline
-does it for you, with a credential your instructor puts on screen.
+does it for you, with a credential your fork fetches for itself.
 
 If `copilot --version` says "not found", check `node --version` **first** — a
 broken Node install is the usual cause and the error message will not say so.
@@ -172,8 +168,8 @@ claude
 > **You do not need a paid GitHub plan.** Actions is free and unmetered on public
 > repositories, and your fork of this public repo is public. Leave it that way.
 
-Then set the one secret, from the URL your instructor puts on screen
-(see [ADR-010](docs/adr/ADR-010-one-open-credential.md)):
+Then set the one secret. Your instructor puts this command on screen — the URL
+is the part that changes (see [ADR-010](docs/adr/ADR-010-one-open-credential.md)):
 
 ```bash
 gh secret set AZURE_CREDENTIALS --body "$(curl -s <the URL on screen>)"
@@ -231,7 +227,7 @@ That's the point of the course.
 | [ADR-007](docs/adr/ADR-007-mcp-endpoint-authentication.md) | MCP endpoint requires caller authentication | **Rejected** — see the ADR for what that accepts |
 | [ADR-010](docs/adr/ADR-010-one-open-credential.md) | One deliberately open classroom credential | Proposed |
 | ADR-008 | Connect Frank to the GitHub pipeline | **You write this in class** |
-| ADR-009 | Grant Frank read access to his Azure environment | **You write this in class** |
+| ADR-009 | Let Frank read what is running in his own resource group | **You write this in class** |
 
 ## Ground rules (security)
 
@@ -249,7 +245,7 @@ That's the point of the course.
 1. Tour and configure every Claude surface (Desktop, CLI + herdr, VS Code, mobile).
 2. Fork this repo, run `/init`, and curate `CLAUDE.md` into real team config.
 3. Author a skill, a rules entry, and a `/adr` command in `.claude/`.
-4. Draft ADR-008 and ADR-009 — Claude drafts, Copilot attacks, you decide.
+4. Draft ADR-009 — Claude drafts, Copilot attacks, you decide. Then build from it.
 5. Build Frank and the console, push once, and watch the pipeline ship **one container** to Azure.
 6. Add Frank as a connector in Claude Desktop and ask him about his own world.
 

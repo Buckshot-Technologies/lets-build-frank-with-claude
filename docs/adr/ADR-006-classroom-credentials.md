@@ -1,6 +1,6 @@
 # ADR-006: Classroom deploys use short-lived client secrets and one container
 
-**Status:** Proposed — **partially supersedes ADR-003, ADR-004 and ADR-005**;
+**Status:** Accepted — **partially supersedes ADR-003, ADR-004 and ADR-005**;
 its credential model and distribution are themselves **superseded by ADR-010**
 (the single-container build and the statement of what the classroom trade-off
 costs remain in force)

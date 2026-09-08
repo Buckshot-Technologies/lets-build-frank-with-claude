@@ -1,6 +1,6 @@
 # ADR-010: One deliberately open classroom credential
 
-**Status:** Proposed — **supersedes ADR-006's credential model and distribution**
+**Status:** Accepted — **supersedes ADR-006's credential model and distribution**
 (ADR-006's single-container build, and its statement of what the classroom
 trade-off costs, remain in force)
 **Date:** 2026-09

@@ -7,6 +7,7 @@
 #   Variables: none. Everything else is committed above, because none of it is secret.
 #   Your container app is named after your GitHub account, so nobody collides.
 #
+# decisions:historical
 # Deliberately NOT here any more, and why:
 #   - OIDC / id-token: write        -> needs a per-fork federated credential,
 #                                     impossible for unknown attendees (ADR-006)
@@ -132,7 +133,7 @@ jobs:
           fi
           # Nothing else to check: the resource group, registry and environment are
           # committed in this file, because none of them is secret.
-          [ "$fail" = 1 ] && { echo "See your seat card, or re-run scripts/setup-seat.sh"; exit 1; }
+          [ "$fail" = 1 ] && { echo "Re-run the one command your instructor put on screen."; exit 1; }
           echo "fork configuration looks good"
 
       - name: Azure login
