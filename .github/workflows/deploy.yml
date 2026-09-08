@@ -49,12 +49,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # `server/` starts empty on purpose — you build it from the ADRs. Until you
+      # have, there is nothing to install or test, so this job reports success
+      # and says why. It starts doing real work the moment you commit a
+      # package-lock.json, with no change to this file.
+      - id: scaffolded
+        run: |
+          if [ -f server/package-lock.json ]; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "yes=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=server/ not scaffolded yet::Nothing to build. Implement the ADRs, commit server/package-lock.json, and this job will build and test it."
+          fi
+
       - uses: actions/setup-node@v4
+        if: steps.scaffolded.outputs.yes == 'true'
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: server/package-lock.json
-      - working-directory: server
+
+      - if: steps.scaffolded.outputs.yes == 'true'
+        working-directory: server
         run: npm ci && npm test && npm run build
 
   build-ui:
@@ -63,12 +80,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # `ui/` starts empty on purpose — you build it from the ADRs. Until you
+      # have, there is nothing to install or test, so this job reports success
+      # and says why. It starts doing real work the moment you commit a
+      # package-lock.json, with no change to this file.
+      - id: scaffolded
+        run: |
+          if [ -f ui/package-lock.json ]; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "yes=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=ui/ not scaffolded yet::Nothing to build. Implement the ADRs, commit ui/package-lock.json, and this job will build and test it."
+          fi
+
       - uses: actions/setup-node@v4
+        if: steps.scaffolded.outputs.yes == 'true'
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: ui/package-lock.json
-      - working-directory: ui
+
+      - if: steps.scaffolded.outputs.yes == 'true'
+        working-directory: ui
         run: npm ci && npm test && npm run build
 
   deploy:
