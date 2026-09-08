@@ -37,6 +37,22 @@ not data theft — Contributor on a resource group means *create container apps*
 and container apps run arbitrary containers. A scraped credential mines
 cryptocurrency on your card. The budget is the mitigation that matters.
 
+## Tell them this before they push — it has no error message
+
+**GitHub disables Actions on forks by default.** After forking, a student must
+open the **Actions** tab and click *"I understand my workflows, go ahead and
+enable them."* Until they do, `git push` runs nothing at all — no failure, no
+log, no red X. Nothing.
+
+It is worse than a broken build because there is nothing to diagnose. Put it on
+screen next to the credential line.
+
+**Nobody needs a paid GitHub plan.** Actions is free and unmetered on public
+repositories, and a fork of a public repo is public. A full class day billed
+zero minutes in testing. The only exception is a student who makes their fork
+*private* — they then spend their own free-tier minutes, and even then a deploy
+is under three minutes against a 2,000/month allowance.
+
 ## What a student does
 
 Two commands, from the URL on your screen:
