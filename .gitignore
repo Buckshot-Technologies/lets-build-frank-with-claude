@@ -1,0 +1,18 @@
+# Dependencies and build output. server/ and ui/ are empty until you build
+# Frank into them, so these paths do not exist yet — that is the point.
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Local environment. Nothing here belongs in the repo; the class credential
+# lives in a GitHub Actions secret (ADR-010), never in a file.
+.env
+.env.*
+!.env.example
+
+# Claude Code local settings — machine-specific, not team config.
+# .claude/ itself IS team config and is committed.
+.claude/settings.local.json
+
+.DS_Store
