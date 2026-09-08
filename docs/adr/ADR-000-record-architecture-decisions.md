@@ -29,10 +29,22 @@ Workflow:
 1. Draft the ADR with Claude (`/adr` command scaffolds it).
 2. Have Copilot attack the draft: edge cases, security holes, simpler alternatives.
 3. A human decides; the ADR is committed via PR.
-4. Implementation prompts reference the ADR by number: *"implement ADR-006."*
+4. Implementation prompts reference the ADR by number: *"implement ADR-008."*
 
 An ADR is immutable once **Accepted**. To change course, write a new ADR that
-**Supersedes** the old one.
+**Supersedes** the old one — wholly, or naming the exact clauses it replaces
+while the rest stays in force.
+
+A decision that is considered and **declined** is recorded as **Rejected**, not
+deleted. The reasoning is the point: a rejected ADR tells a future reader what
+was weighed and what the alternative cost, which is exactly what stops the same
+argument being had twice.
+
+One narrow exception: the **Status line** of a superseded ADR may be updated to
+record that it was superseded, and by which ADR. That is lifecycle metadata, not
+a rewrite of the decision. Body text, date, rationale, and consequences stay
+exactly as they were — the point of an ADR is that you can read what was decided
+and why, at the time.
 
 ## Consequences
 
