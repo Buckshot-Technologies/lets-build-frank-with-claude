@@ -3,8 +3,8 @@
 A one-day, hands-on engineering course from **Buckshot Technologies**.
 
 By 5pm you will have designed, built, deployed, and **talked to** a real system —
-**Frank**, an MCP server with a Cloudscape web console, running in your own Azure
-subscription — using Claude and GitHub Copilot as your engineering team.
+**Frank**, an MCP server with a Cloudscape web console, running in Azure at a URL
+with your name on it — using Claude and GitHub Copilot as your engineering team.
 
 ---
 
@@ -42,7 +42,7 @@ no credentials, no pipeline — which is exactly why it is the floor.
   verification, or judgement.
 - Not a production Azure, Kubernetes, or identity course. The classroom
   deployment **deliberately** trades rigour for a bounded, temporary payoff —
-  and [ADR-006](docs/adr/ADR-006-classroom-credentials.md) says exactly what
+  and [ADR-010](docs/adr/ADR-010-one-open-credential.md) says exactly what
   that costs.
 - Not a promise that skills or subagents dispatch deterministically. They are
   routing hints to a probabilistic model, and you will see that first-hand.
@@ -81,13 +81,13 @@ Frank is:
   Claude Desktop, Claude Code, the Cloudscape UI — can discover and call;
 - a **Cloudscape web console** for talking to Frank directly;
 - deployed to **Azure** through the GitHub Actions pipeline in this repo;
-- granted **read-only** access to the Azure environment he runs in, so he can
+- able to **read** the Azure environment he runs in, so he can
   report on his own world (*"Frank, what's running in your resource group?"*).
 
 The core architecture decisions are already made and recorded in
 [`docs/adr/`](docs/adr/). During the class you will write two more ADRs —
-connecting Frank to the GitHub pipeline, and granting him read access to Azure —
-and have the agents implement them.
+connecting Frank to the GitHub pipeline, and teaching him to read his own Azure
+environment — and have the agents implement them.
 
 ## What you need before class
 
@@ -127,8 +127,10 @@ claude --version
 copilot --version
 herdr --version
 gh auth status
-az login           # Azure CLI, logged into your subscription
 ```
+
+No `az login`, and no Azure CLI. You never talk to Azure directly — the pipeline
+does it for you, with a credential your instructor puts on screen.
 
 If `copilot --version` says "not found", check `node --version` **first** — a
 broken Node install is the usual cause and the error message will not say so.
@@ -245,7 +247,7 @@ That's the point of the course.
 5. Build Frank and the console, push once, and watch the pipeline ship **one container** to Azure.
 6. Add Frank as a connector in Claude Desktop and ask him about his own world.
 
-Bring a laptop, bring credentials, bring skepticism. The agents will supply the
+Bring a laptop, bring skepticism. The agents will supply the
 confidence — your job is to supply the judgment.
 
 ---
