@@ -49,7 +49,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # `server/` starts empty on purpose — you build it from the ADRs. Until you
       # have, there is nothing to install or test, so this job reports success
@@ -64,7 +64,7 @@ jobs:
             echo "::notice title=server/ not scaffolded yet::Nothing to build. Implement the ADRs, commit server/package-lock.json, and this job will build and test it."
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         if: steps.scaffolded.outputs.yes == 'true'
         with:
           node-version: 22
@@ -80,7 +80,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # `ui/` starts empty on purpose — you build it from the ADRs. Until you
       # have, there is nothing to install or test, so this job reports success
@@ -95,7 +95,7 @@ jobs:
             echo "::notice title=ui/ not scaffolded yet::Nothing to build. Implement the ADRs, commit ui/package-lock.json, and this job will build and test it."
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         if: steps.scaffolded.outputs.yes == 'true'
         with:
           node-version: 22
@@ -114,7 +114,7 @@ jobs:
     # Dockerfile, which runs `npm test` in both build stages.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # GitHub expands a missing secret or variable to an EMPTY STRING, and az
       # then fails with something unrelated-looking. Fail loudly and early
