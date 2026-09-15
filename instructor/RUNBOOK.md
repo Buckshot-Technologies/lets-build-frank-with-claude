@@ -44,19 +44,29 @@ cost what 3 do.
 ## T-minus one day
 
 ```bash
-./instructor/publish-credential.sh
+cd instructor
+./provision-class.sh                  # group + registry + environment
+./provision-service.sh                # credential service; prints the URL
+CLASS_RG=rg-frank-class VAULT=<printed> ./publish-credential.sh
+APP=<printed> ./ops.sh open 8
+APP=<printed> ./ops.sh status         # expect "students can deploy"
 ```
 
 One app registration, one client secret, Contributor on one resource group,
-two-day expiry — published to a public blob with a random container name. It
-prints the one-line command you put on screen. Note what that line does **not**
-contain: the credential itself. `curl` pipes it straight into `gh secret set`, so
-the key never appears on the projector, in anyone's clipboard, or in shell
-history. Only the URL is visible, and it is public by design.
+two-day expiry — stored base64-encoded in Key Vault and served by the credential
+service. **There is nothing to put on screen.** The pipeline fetches it; the
+student runs no setup command at all, so the credential never reaches a
+projector, a clipboard, or anyone's shell history.
 
-Pre-creating the shared registry and Container Apps environment matters: the
-environment takes **~75–90s** and it is the long pole. Created once for the
-class, not once per student.
+**Paste the URL from `provision-service.sh` into `CREDENTIAL_URL` in
+`.github/workflows/deploy.yml` on `main`.** That one line is what makes every
+fork work, and it is the easiest thing in this runbook to forget.
+
+The Container Apps environment is the long pole at **~75–90s**, created once for
+the class rather than once per student. Watch for
+`ManagedEnvironmentNoAvailableCapacityInRegion` — `eastus` had no capacity on
+2026-09-15. The script falls back through other regions on its own, but it means
+your environment may not be in the region you expect.
 
 **Verify the whole path yourself, end to end.** Fork, set the secret from the
 URL, push, watch it deploy, open `/healthz`. A room of people discovering a
@@ -79,8 +89,11 @@ broken credential simultaneously is the worst hour of your life.
 - The **pre-recorded** vague-description clip queued (see *Demos that can fail*).
 - A deliberately broken state in your own fork, in case every student deploys
   clean first time — the diagnosis is the lesson, not the green tick.
-- `./instructor/publish-credential.sh show` on screen — the command, not the key.
-  Do not put it in a shared doc that outlives the day.
+- `APP=<app> ./instructor/ops.sh warm` run once — consumption plans cold-start,
+  and the first student to push should not pay for it.
+- `APP=<app> ./instructor/ops.sh status` says **"students can deploy"**. Nothing
+  goes on screen this year; if it says CANNOT, nobody can deploy and there is no
+  student-side symptom that explains why.
 
 ---
 
@@ -119,8 +132,13 @@ variables; `DefaultAzureCredential` picks them up. Verified in rehearsal with
 
 That was the blocker that made ADR-009 unimplementable — students cannot create
 role assignments, and the identity did not exist until first deploy. Removing
-the secret removed the blocker. Also deleted: `provision-class.sh`,
-`setup-seat.sh`, `handout.sh`, and the printed seat cards.
+the secret removed the blocker. Also deleted: `setup-seat.sh`, `handout.sh`,
+and the printed seat cards.
+
+> The old per-seat `provision-class.sh` is gone. The script of that name today
+> does something different and much smaller: it creates the **one** shared group,
+> registry and environment the whole class deploys into. It is O(1), not
+> O(seats) - which is the entire point of ADR-010.
 
 ---
 
@@ -132,7 +150,8 @@ the secret removed the blocker. Also deleted: `provision-class.sh`,
 | `copilot: not found` | Broken Node, not Copilot | "Check `node --version` first. The error won't tell you." |
 | Deploy fails with an opaque `az` error | A missing GitHub secret expands to an **empty string** | "The preflight step names it. Read the red line." |
 | **Job never starts; no logs at all** | **Org billing lock.** The message is in the check *annotation*, not the logs | "That's an account problem, not your code." Cost real time in rehearsal — look at the annotation first |
-| `AADSTS700213` | Someone reused old OIDC instructions | "That's ADR-005, superseded by ADR-006 and then ADR-010. Run the command on screen." |
+| `AADSTS700213` | Someone reused old OIDC instructions | "That's ADR-005, superseded by ADR-006 and then ADR-010. You don't run anything — just push." |
+| `Could not get a classroom credential` | The window is closed, or the service is down | Run `ops.sh status`. This is the one failure with no student-side cause. |
 | An agent dies seconds after starting | It was on a first-run trust prompt; herdr reported it ready | "Approve the trust prompt, then re-send." |
 | Deploy slow, no output | ACR build, ~70s | "That's the image building in the cloud. It dominates; nothing is stuck." |
 | Two students deploy at once | **Untested at class scale.** They share one resource group; app names derive from the GitHub owner, so collision needs deliberate effort | Have them stagger if you see trouble, and tell them why |

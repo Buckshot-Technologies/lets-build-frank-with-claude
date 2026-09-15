@@ -1,0 +1,34 @@
+{
+  "Name": "Frank Class Deployer",
+  "IsCustom": true,
+  "Description": "Exactly what the classroom pipeline needs: build an image, create or update one container app, and read the resource group. No deletes, and no resource type other than container apps and the registry.",
+  "Actions": [
+    "Microsoft.Resources/subscriptions/resourceGroups/read",
+    "Microsoft.Resources/subscriptions/resourceGroups/resources/read",
+
+    "Microsoft.App/containerApps/read",
+    "Microsoft.App/containerApps/write",
+    "Microsoft.App/containerApps/listSecrets/action",
+    "Microsoft.App/containerApps/revisions/read",
+    "Microsoft.App/managedEnvironments/read",
+    "Microsoft.App/managedEnvironments/join/action",
+    "Microsoft.App/locations/*/read",
+
+    "Microsoft.ContainerRegistry/registries/read",
+    "Microsoft.ContainerRegistry/registries/pull/read",
+    "Microsoft.ContainerRegistry/registries/push/write",
+    "Microsoft.ContainerRegistry/registries/listCredentials/action",
+    "Microsoft.ContainerRegistry/registries/scheduleRun/action",
+    "Microsoft.ContainerRegistry/registries/runs/read",
+    "Microsoft.ContainerRegistry/registries/runs/listLogSasUrl/action",
+
+    "Microsoft.OperationalInsights/workspaces/read",
+    "Microsoft.Insights/components/read"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": [
+    "/subscriptions/REPLACE-WITH-SUBSCRIPTION-ID/resourceGroups/rg-frank-class"
+  ]
+}

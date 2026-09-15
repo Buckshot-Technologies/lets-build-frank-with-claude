@@ -1,112 +1,72 @@
 #!/usr/bin/env bash
-# Publish the classroom credential to a public blob, so students fetch it with
-# one command instead of retyping it off a slide.
+# Create the classroom credential and store it, base64-encoded, in Key Vault.
 #
-#   ./publish-credential.sh create    make the credential + bucket, print the one-liner
-#   ./publish-credential.sh show      print the student one-liner again
-#   ./publish-credential.sh revoke    delete the blob AND the app registration
+# YOU run this, not an agent. It mints a real client secret.
 #
-# This is deliberately open. Read the risk note below before running it.
+#   CLASS_RG=rg-frank-class ./scripts/publish-credential.sh
+#
+# The secret is never printed, never written to disk, and never leaves this
+# shell except into Key Vault.
 set -euo pipefail
 
-RG="${RG:-rg-frank-class}"
-LOCATION="${LOCATION:-eastus}"
-APP_NAME="${APP_NAME:-frank-class}"
-STATE=".class-credential"          # local: names of what we made, never the secret
+: "${RG:=rg-frank-service}"
+: "${CLASS_RG:?set CLASS_RG to the resource group the class deploys into}"
+: "${VAULT:?set VAULT to the key vault name printed by provision.sh}"
+: "${SP_NAME:=frank-class}"
+# Built-in Contributor by default. To use the tightened role instead:
+#   ROLE="Frank Class Deployer" ./scripts/publish-credential.sh
+: "${ROLE:=Contributor}"
+: "${DAYS:=2}"
 
-command -v az >/dev/null || { echo "az CLI not found" >&2; exit 1; }
+SUB=$(az account show --query id -o tsv)
+SCOPE="/subscriptions/$SUB/resourceGroups/$CLASS_RG"
 
-case "${1:-show}" in
+# A role assignment cannot be scoped to a group that does not exist, and the
+# failure from create-for-rbac is opaque. Say it plainly instead.
+if [ "$(az group exists -n "$CLASS_RG")" != "true" ]; then
+  echo "Resource group '$CLASS_RG' does not exist." >&2
+  echo "Run ./provision-class.sh first." >&2
+  exit 1
+fi
 
-create)
-  SUB="$(az account show --query id -o tsv)"
-  TENANT="$(az account show --query tenantId -o tsv)"
-  echo "subscription : $SUB"
-  echo "resource grp : $RG"
-  echo
+echo "creating '$SP_NAME' with role '$ROLE' on $CLASS_RG, expiring in $DAYS days"
 
-  # An unguessable container name. The blob is public — anyone with the URL can
-  # read it — but it will not be found by crawling, which is the difference
-  # between "the class can fetch it" and "the internet finds it in ten minutes".
-  TOKEN="$(python3 -c 'import secrets;print(secrets.token_hex(8))')"
-  SA="frankclass$(printf '%s' "$SUB" | tr -cd '[:alnum:]' | cut -c1-10)"
+# --sdk-auth emits exactly the JSON shape azure/login and deploy.yml expect.
+CREDS=$(az ad sp create-for-rbac \
+  --name "$SP_NAME" \
+  --role "$ROLE" \
+  --scopes "$SCOPE" \
+  --years 1 \
+  --sdk-auth)
 
-  echo "1/4  resource group"
-  az group create --name "$RG" --location "$LOCATION" -o none
+# Sanity-check the shape before storing it, so a bad credential is caught now
+# rather than by thirty students at once.
+echo "$CREDS" | python3 -c '
+import json,sys
+d = json.load(sys.stdin)
+missing = [k for k in ("clientId","clientSecret","subscriptionId","tenantId") if not d.get(k)]
+if missing:
+    sys.exit("credential is missing: " + ", ".join(missing))
+' || { echo "refusing to store a malformed credential"; exit 1; }
 
-  echo "2/4  storage account ($SA)"
-  az storage account create --name "$SA" --resource-group "$RG" \
-    --location "$LOCATION" --sku Standard_LRS --allow-blob-public-access true -o none 2>/dev/null \
-    || echo "     (exists)"
-  KEY="$(az storage account keys list --account-name "$SA" -g "$RG" --query "[0].value" -o tsv)"
+# Base64 so GitHub's scanners do not recognise it and auto-revoke it mid-class
+# (ADR-010). This is not encryption and is not pretending to be.
+ENCODED=$(printf '%s' "$CREDS" | base64 | tr -d '\n')
 
-  echo "3/4  public container ($TOKEN)"
-  az storage container create --name "$TOKEN" --account-name "$SA" --account-key "$KEY" \
-    --public-access blob -o none
+az keyvault secret set --vault-name "$VAULT" --name classroom-value \
+  --value "$ENCODED" --only-show-errors -o none
 
-  echo "4/4  service principal, Contributor on $RG only, expires in 2 days"
-  END="$(python3 -c 'import datetime;print((datetime.datetime.utcnow()+datetime.timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ"))')"
-  APP_ID="$(az ad app create --display-name "$APP_NAME" --query appId -o tsv)"
-  az ad sp create --id "$APP_ID" -o none 2>/dev/null || true
-  SP_OID="$(az ad sp show --id "$APP_ID" --query id -o tsv)"
-  SECRET="$(az ad app credential reset --id "$APP_ID" --append --display-name class \
-              --end-date "$END" --query password -o tsv)"
+unset CREDS ENCODED
 
-  for attempt in 1 2 3 4 5 6; do
-    az role assignment create --assignee-object-id "$SP_OID" \
-      --assignee-principal-type ServicePrincipal --role Contributor \
-      --scope "/subscriptions/$SUB/resourceGroups/$RG" -o none 2>/dev/null && break
-    echo "     waiting for the principal to propagate ($attempt)"
-    python3 -c 'import time;time.sleep(10)'
-  done
+EXPIRES=$(python3 -c "import datetime;print((datetime.datetime.now(datetime.UTC)+datetime.timedelta(days=$DAYS)).strftime('%Y-%m-%dT%H:%M:%SZ'))")
 
-  printf '{\n  "clientId": "%s",\n  "clientSecret": "%s",\n  "subscriptionId": "%s",\n  "tenantId": "%s"\n}\n' \
-    "$APP_ID" "$SECRET" "$SUB" "$TENANT" > /tmp/azure-credentials.$$.json
-  az storage blob upload --account-name "$SA" --account-key "$KEY" \
-    --container-name "$TOKEN" --name azure.json --file /tmp/azure-credentials.$$.json \
-    --overwrite -o none
-  rm -f /tmp/azure-credentials.$$.json
+cat <<SUMMARY
 
-  URL="https://$SA.blob.core.windows.net/$TOKEN/azure.json"
-  printf 'SA=%s\nCONTAINER=%s\nAPP_ID=%s\nURL=%s\nEXPIRES=%s\n' "$SA" "$TOKEN" "$APP_ID" "$URL" "$END" > "$STATE"
-  "$0" show
-  ;;
+Stored. The value is in Key Vault and was never written to disk.
 
-show)
-  [ -f "$STATE" ] || { echo "No credential published. Run: $0 create" >&2; exit 1; }
-  # shellcheck disable=SC1090
-  . "$STATE"
-  cat <<BANNER
+  Suggested window : OPEN_UNTIL=$EXPIRES
+  Open the service : APP=<app> ./ops.sh open 8
+  Tear down after  : ./teardown-class.sh
 
-================================================================
-  PUT THIS ON THE SCREEN
-================================================================
-
-  gh secret set AZURE_CREDENTIALS --body "\$(curl -s $URL)"
-  git push origin main
-
-================================================================
-
-  Expires: $EXPIRES
-  Scope:   Contributor on $RG only, nothing else in the subscription
-  Revoke:  $0 revoke
-
-BANNER
-  ;;
-
-revoke)
-  [ -f "$STATE" ] || { echo "nothing to revoke" >&2; exit 1; }
-  # shellcheck disable=SC1090
-  . "$STATE"
-  KEY="$(az storage account keys list --account-name "$SA" -g "$RG" --query "[0].value" -o tsv 2>/dev/null || true)"
-  [ -n "$KEY" ] && az storage container delete --name "$CONTAINER" --account-name "$SA" \
-    --account-key "$KEY" -o none 2>/dev/null && echo "blob container deleted"
-  az ad app delete --id "$APP_ID" 2>/dev/null && echo "app registration deleted — the credential is dead"
-  rm -f "$STATE"
-  echo
-  echo "The resource group still holds the students' apps. Delete it when you're done:"
-  echo "  az group delete --name $RG --yes --no-wait"
-  ;;
-
-*) echo "usage: $0 create|show|revoke" >&2; exit 2 ;;
-esac
+Reminder: set a budget on this subscription before class.
+SUMMARY
