@@ -1,0 +1,13 @@
+{
+  "name": "frank-credential-service",
+  "version": "1.0.0",
+  "description": "Serves one opaque string to the classroom pipeline (ADR-010).",
+  "private": true,
+  "main": "src/functions/*.js",
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "@azure/functions": "^4.7.0",
+    "@azure/identity": "^4.13.3",
+    "@azure/keyvault-secrets": "^4.10.0"
+  }
+}

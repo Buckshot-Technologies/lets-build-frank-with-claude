@@ -1,0 +1,6 @@
+.git*
+.vscode
+scripts
+role
+README.md
+local.settings.json
