@@ -65,9 +65,10 @@ and **auto-revoked** — which breaks the class rather than protecting it. Encod
 removes that failure mode. It is not encryption and nothing here pretends it is.
 
 **Mask before parsing.** The workflow masks the encoded string the moment it
-arrives, decodes, then masks each field before use. The fork is public, so its
-Actions logs are public, and an unmasked value in a failed step is the one way
-this still bites.
+arrives, decodes, then masks the decoded blob and the client secret. The ids are
+left unmasked on purpose — they are not secret, as above, and masking them makes
+every later error message unreadable. The fork is public, so its Actions logs are
+public, and an unmasked value in a failed step is the one way this still bites.
 
 **The instructor keeps a kill switch.** The service reads an enable flag and an
 auto-close timestamp at request time, so it can be closed from the portal
