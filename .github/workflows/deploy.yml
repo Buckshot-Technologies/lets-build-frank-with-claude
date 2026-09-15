@@ -254,8 +254,25 @@ jobs:
             --name "${{ steps.who.outputs.app }}" \
             --resource-group "$AZURE_RESOURCE_GROUP" \
             --query properties.configuration.ingress.fqdn -o tsv)
-          echo "### Frank is live" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Console: https://$FQDN/" >> $GITHUB_STEP_SUMMARY
-          echo "- MCP:     https://$FQDN/mcp" >> $GITHUB_STEP_SUMMARY
-          echo "- Health:  https://$FQDN/healthz" >> $GITHUB_STEP_SUMMARY
+          # Ordered by what you do next, not by what exists. The console is
+          # built late (ADR-003), so leading with it sends everyone to the one
+          # link that says "not built yet". The connect command is spelled out
+          # in full so nobody retypes a URL off a projector.
+          {
+            echo "### Frank is live"
+            echo ""
+            echo "Connect Claude Code to him:"
+            echo ""
+            echo '```bash'
+            echo "claude mcp add --transport http frank https://$FQDN/mcp"
+            echo '```'
+            echo ""
+            echo "Then **restart \`claude\`** and run \`/mcp\`. MCP servers load at"
+            echo "session start, so a running session will not see him."
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| MCP | https://$FQDN/mcp |"
+            echo "| Health | https://$FQDN/healthz |"
+            echo "| Console | https://$FQDN/ — once you build it (ADR-003) |"
+          } >> "$GITHUB_STEP_SUMMARY"
