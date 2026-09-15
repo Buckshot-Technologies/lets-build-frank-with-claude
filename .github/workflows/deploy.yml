@@ -43,8 +43,7 @@ env:
   # obscurity was never doing the work here, the cohort path and the service's
   # auto-close are. The service returns the credential base64-encoded, or an
   # empty 404 once the cohort is closed.
-  # TODO(ADR-010): replace with the real host when the credential service ships.
-  CREDENTIAL_URL: https://REPLACE-ME.invalid/v1/b/2026-09
+  CREDENTIAL_URL: https://frankclasssvc2ba9ef.azurewebsites.net/v1/b/2026-09
 
 jobs:
   # These two run on PULL REQUESTS only — fast feedback with no Azure involved.
